@@ -10,26 +10,32 @@ body {
   gap: 20px;
 }
 
+h1 {
+  margin-bottom: 10px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 button {
-  padding: 12px 20px;
-  font-size: 16px;
+  padding: 12px 18px;
+  font-size: 15px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
 }
 
-#recordBtn {
-  background: #e63946;
-  color: white;
-}
-
-#playBtn {
-  background: #4cc9f0;
-  color: black;
-}
+#recordBtn { background: #e63946; color: white; }
+#playBtn { background: #4cc9f0; }
+#reverseBtn { background: #a855f7; color: white; }
+#downloadBtn { background: #22c55e; color: white; }
 
 .controls {
-  width: 250px;
+  width: 260px;
 }
 
 input[type="range"] {
