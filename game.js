@@ -1,55 +1,59 @@
 let mediaRecorder;
-let audioChunks = [];
+let chunks = [];
 let audioBlob;
-let audioUrl;
+let audioURL;
 let audioContext;
-let source;
 
 const recordBtn = document.getElementById("recordBtn");
 const playBtn = document.getElementById("playBtn");
 const pitchSlider = document.getElementById("pitch");
 
-recordBtn.onclick = async () => {
+recordBtn.addEventListener("click", async () => {
   if (!mediaRecorder || mediaRecorder.state === "inactive") {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
-    audioChunks = [];
 
-    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    chunks = [];
+
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) chunks.push(e.data);
+    };
 
     mediaRecorder.onstop = () => {
-      audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-      audioUrl = URL.createObjectURL(audioBlob);
+      audioBlob = new Blob(chunks);
+      audioURL = URL.createObjectURL(audioBlob);
       playBtn.disabled = false;
+      console.log("Recording saved");
     };
 
     mediaRecorder.start();
     recordBtn.textContent = "Stop Recording";
+    console.log("Recording started");
   } else {
     mediaRecorder.stop();
     recordBtn.textContent = "Start Recording";
+    console.log("Recording stopped");
   }
-};
+});
 
-playBtn.onclick = async () => {
+playBtn.addEventListener("click", async () => {
   if (!audioBlob) return;
 
   if (!audioContext) {
     audioContext = new AudioContext();
   }
 
-  const response = await fetch(audioUrl);
-  const arrayBuffer = await response.arrayBuffer();
-  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  const response = await fetch(audioURL);
+  const buffer = await response.arrayBuffer();
+  const audioBuffer = await audioContext.decodeAudioData(buffer);
 
-  if (source) source.stop();
-
-  source = audioContext.createBufferSource();
+  const source = audioContext.createBufferSource();
   source.buffer = audioBuffer;
 
-  // 🎚 Pitch control (affects speed too)
+  // Pitch (speed-linked)
   source.playbackRate.value = pitchSlider.value;
 
   source.connect(audioContext.destination);
   source.start();
-};
+});
